@@ -9,26 +9,22 @@ import time
 import pandas as pd
 
 
+# aws database configuration
+
 def setup_database():
     conn = mysql.connector.connect(
-        host="banana-rds.c9q0ke8ui71z.us-east-1.rds.amazonaws.com",  # RDS endpoint
-        user="gopinathv19",         # RDS master username
-        password="D62OakvF3mQCHNb4YJgZ",  # RDS master password
-        database="banana_rds"       # Your database name on RDS
+        host="banana-rds.c9q0ke8ui71z.us-east-1.rds.amazonaws.com",   
+        user="gopinathv19",          
+        password="D62OakvF3mQCHNb4YJgZ",   
+        database="banana_rds"        
     )
     return conn
 
 
-# Save freshness data to the database
-def save_to_database(freshness_data, conn, produce="banana"):
-    """
-    Saves freshness data to the database.
+ # values for the freshness data table inserting logic 
 
-    Parameters:
-    - freshness_data: List of freshness classifications (e.g., [0, 1, 2]).
-    - conn: MySQL database connection.
-    - produce: The name of the produce being analyzed (default is 'banana').
-    """
+def save_to_database(freshness_data, conn, produce="banana"):
+ 
     cursor = conn.cursor()
     for freshness in freshness_data:
         timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
@@ -42,7 +38,7 @@ def save_to_database(freshness_data, conn, produce="banana"):
     conn.commit()
 
 
-# Fetch data from the database
+# Fetching Data from the database
 def fetch_from_database(conn):
     cursor = conn.cursor()
     cursor.execute("SELECT Sl_no, Timestamp, Produce, Freshness, Expected_Life_Span_Days FROM FreshnessData")
@@ -54,21 +50,11 @@ def truncate_table(conn):
     cursor.execute("TRUNCATE TABLE FreshnessData")
     conn.commit()
 
-def display_descending_data(conn):
-    # Fetch data from the database
-    data = fetch_from_database(conn)
-    
-    # Create DataFrame with column names
-    df = pd.DataFrame(data, columns=["Sl_no", "Timestamp", "Produce", "Freshness", "Expected_Life_Span_Days"])
-    
-    # Sort the DataFrame in descending order based on the Timestamp or Sl_no (you can change this column)
-    df_sorted = df.sort_values(by="Timestamp", ascending=False)  # Change the column if needed
-    st.sidebar.table(df_sorted.set_index('Sl_no', drop=True))  # Remove index column and set Sl_no as index    
+# yolo model Initialization
 
-    
-
-# Load YOLO model for object detection (bananas)
 yolo_model = YOLO('best.pt')
+
+#yolo classes
 
 COCO_CLASSES = [
     'person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat',
@@ -83,6 +69,7 @@ COCO_CLASSES = [
     'refrigerator', 'book', 'clock', 'vase', 'scissors', 'teddy bear', 'hair drier', 'toothbrush'
 ]
 
+# sending the pridicted class
 
 def classify_banana(image, model):
     image = transform(image).unsqueeze(0)
@@ -91,7 +78,8 @@ def classify_banana(image, model):
         _, predicted = torch.max(output, 1)
     return predicted.item()
 
-# Load EfficientNet Model for Freshness Classification
+# Loading efficient net model for the classification
+
 def load_efficientnet_model(checkpoint_path, num_classes=3):
     model = models.efficientnet_b0(weights="IMAGENET1K_V1")
     num_ftrs = model.classifier[1].in_features
@@ -123,10 +111,7 @@ if st.sidebar.button("Clear Table Data"):
     truncate_table(conn)
     st.sidebar.success("Table data cleared!") 
 
-if st.sidebar.button("Show Descending Order"):
-    display_descending_data(conn)    
-
-# Set up OpenCV video capture
+# Seting  up OpenCV for video capture
 cap = cv2.VideoCapture(0)  # 0 for the default camera, adjust if you have multiple cameras
 
 if not cap.isOpened():
@@ -196,6 +181,6 @@ else:
     cap.release()
     cv2.destroyAllWindows()
 
-# Close the database connection when the app stops
+ 
 if conn.is_connected():
     conn.close()
