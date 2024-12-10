@@ -7,6 +7,7 @@ from torchvision import models, transforms
 from ultralytics import YOLO
 import time
 import pandas as pd
+import os
 
 
 # aws database configuration
@@ -52,7 +53,7 @@ def truncate_table(conn):
 
 # yolo model Initialization
 
-yolo_model = YOLO('best.pt')
+yolo_model = YOLO(os.path.join(os.getcwd(),"best.pt"))
 
 #yolo classes
 
@@ -89,8 +90,9 @@ def load_efficientnet_model(checkpoint_path, num_classes=3):
     model.eval()
     return model
 
-efficientnet_model = load_efficientnet_model('bananaClassifier.pt', num_classes=3)
+efficientnet_model = load_efficientnet_model(os.path.join(os.getcwd(),"bananaClassifier.pt"), num_classes=3)
 
+ 
 # Image Transformation Pipeline for classification
 transform = transforms.Compose([
     transforms.Resize((224, 224)),
