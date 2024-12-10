@@ -1,5 +1,5 @@
-torch
-torchvision
+torch+cpu
+torchvision+cpu
 streamlit
 opencv-python
 Pillow
