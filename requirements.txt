@@ -1,8 +1,8 @@
-torch==2.0.0
-torchvision==0.15.0
-streamlit==1.40.2
+torch
+torchvision
+streamlit
 opencv-python
-Pillow==10.0.1
-ultralytics==8.0.65
-pandas==2.2.3
+Pillow
+ultralytics
+pandas
 mysql-connector-python
